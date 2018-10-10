@@ -35,7 +35,7 @@ describe('GET /http://jacob.uk.com', function(){
             
         request(app)
             .get('/https://blog.jacob.uk.com/')
-            .set('rewrite-urls', 'true')
+            // .set('rewrite-urls', 'true')
             .expect('Access-Control-Allow-Origin', '*')
             .expect('Access-Control-Allow-Headers', 'Content-Type')
             .expect('Access-Control-Allow-Credentials', 'false')

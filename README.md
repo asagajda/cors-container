@@ -24,9 +24,9 @@ cors-container will rewrite any relative URLs it finds in the proxies response b
 
 This can be useful if you wish to be able to pull additional assets on a page through the proxy such as stylesheets and JavaScript. 
 
-This is not enabled by default as this option mutates the original response body. 
+This is enabled by default as this option mutates the original response body. 
 
-Set `rewrite-urls` in the request header to cors-cotainer if you want relative URLs rewriting.
+Set `not-rewrite-urls` in the request header to cors-cotainer if you don't want relative URLs rewriting.
 
 #### Deploying
 

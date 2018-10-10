@@ -56,14 +56,14 @@ module.exports = function(app){
                 .addHeaderByKeyValue('Access-Control-Allow-Headers', 'Content-Type')
                 .addHeaderByKeyValue('X-Proxied-By', 'cors-container')
                 .build(originResponse.headers);
-            if(req.headers['rewrite-urls']){
+            if(req.headers['not-rewrite-urls']){
+                res.send(originResponse.body);                
+            }else{
                 res.send(
                     converter
                         .convert(originResponse.body, requestedUrl)
                         .replace(requestedUrl, corsBaseUrl + '/' + requestedUrl)
                 ); 
-            }else{
-                res.send(originResponse.body);                
             }
         })
         .catch(originResponse => {
