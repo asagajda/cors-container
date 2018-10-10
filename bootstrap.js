@@ -22,6 +22,7 @@ module.exports = function(app){
     }
 
     app.get('/*', (req, res) => {
+        const responseBuilder = new ResponseBuilder(res);
         let originalUrl = req.originalUrl;
         let requestedUrl = req.params[0];
         let parsedRequestUrl = url.parse(requestedUrl)
