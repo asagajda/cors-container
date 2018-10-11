@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+express.static.mime.charsets.lookup=function(){}
 const compression = require('compression');
 const cluster = require('cluster');
 const app = express();

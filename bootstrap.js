@@ -1,11 +1,15 @@
 'use strict';
 
+const express = require('express');
 const request = require('request-promise');
 const converter = require('rel-to-abs');
 const url = require('url');
 const fs = require('fs');
 const index = fs.readFileSync('index.html', 'utf8');
 const ResponseBuilder = require('./app/ResponseBuilder');
+const Iconv = require('iconv').Iconv;
+var iconv  = require('iconv-lite');
+const Buffer = require('buffer').Buffer;
 
 const debug = process.env.debug_log || false;
 
@@ -22,6 +26,8 @@ module.exports = function(app){
     }
 
     app.get('/*', (req, res) => {
+
+        console.log(res.body)
         const responseBuilder = new ResponseBuilder(res);
         let originalUrl = req.originalUrl;
         let requestedUrl = req.params[0];
@@ -39,23 +45,36 @@ module.exports = function(app){
             res.send("Invalid Url '" + requestedUrl + "'");
             return
         }
-        
-        req.headers['host'] = parsedRequestUrl.host;
+
         if(debug) {
             console.info("Req headers:" , JSON.stringify(req.headers));
         }
-
-        request({
-            uri: requestedUrl,
-            resolveWithFullResponse: true,
-            headers:  req.headers
-        })
+        
+        request(
+            {
+                encoding: null,
+                uri: requestedUrl,
+                resolveWithFullResponse: true,
+            })
         .then(originResponse => {            
+            let charset;
+            if (originResponse.headers['content-type']) {
+                if (originResponse.headers["content-type"].match(/charset=(.*)/) &&
+                    originResponse.headers["content-type"].match(/charset=(.*)/)[1]) {
+                    charset = originResponse.headers["content-type"].match(/charset=(.*)/)[1]
+                }
+                if (charset) {
+                    const conv = new Iconv(charset, 'utf-8');
+                    originResponse.body = conv.convert(originResponse.body).toString();
+                }
+            }
+
             responseBuilder
                 .addHeaderByKeyValue('Access-Control-Allow-Origin', '*')
                 .addHeaderByKeyValue('Access-Control-Allow-Credentials', false)
                 .addHeaderByKeyValue('Access-Control-Allow-Headers', 'Content-Type')
                 .addHeaderByKeyValue('X-Proxied-By', 'cors-container')
+                .addHeaderByKeyValue('content-type', 'text/html; charset=windows-1251')
                 .build(originResponse.headers);
             if(req.headers['not-rewrite-urls']){
                 res.send(originResponse.body);                
@@ -71,9 +90,7 @@ module.exports = function(app){
             responseBuilder
                 .addHeaderByKeyValue('Access-Control-Allow-Origin', '*')
                 .addHeaderByKeyValue('Access-Control-Allow-Credentials', false)
-                .addHeaderByKeyValue('Access-Control-Allow-Headers', 'Content-Type')
-                .addHeaderByKeyValue('X-Proxied-By', 'cors-containermeh')
-                .build(originResponse.headers);
+                .addHeaderByKeyValue('Access-Control-Allow-Headers', 'Content-Type') .addHeaderByKeyValue('X-Proxied-By', 'cors-containermeh') .build(originResponse.headers);
 
             res.status(originResponse.statusCode || 500);
             
