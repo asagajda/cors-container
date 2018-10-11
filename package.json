@@ -27,7 +27,6 @@
     "compression": "^1.6.1",
     "express": "^4.13.4",
     "iconv": "2.3.1",
-    "iconv-lite": "^0.4.24",
     "mocha": "^2.5.3",
     "nock": "^7.2.2",
     "rel-to-abs": "^0.1.0",
